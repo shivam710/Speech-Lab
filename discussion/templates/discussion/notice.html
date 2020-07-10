@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <a class="navbar-brand" href="/home">Speech Lab, IITG</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+    aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/home">Home<span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="{% url 'course:dashboard' %}">Courses</a>
+      </li>
+
+    </ul>
+    <ul class="navbar-nav">
+      <li class="nav-item">
+        <a class="nav-link" href="{{sign_in_url}}">
+          {% if username == '' %}
+          Log in with Outlook
+          {% else %}
+          {{username}}
+          {% endif %}
+        </a>
+      </li>
+    </ul>
+
+  </div>
+</nav>
+
+    <div class="col">
+
+      <div class="container">
+        <h1><center>{{title}} Notice Board</center></h1>
+        <div class="accordion" id="accordionExample">
+          {% for j in all_notice %}
+
+          <div class="card">
+            <div class="card-header" id="heading {{j.NoticeTime}}">
+              <h2 class="mb-0">
+                <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse {{j.NoticeTime}}" aria-expanded="true" aria-controls="collapse {{j.NoticeTime}}">
+                   <h3><center>{{j.NoticeHead}}</h3>
+                </button>
+              </h2>
+            </div>
+
+            <div id="collapse {{j.NoticeTime}}" class="collapse show" aria-labelledby="heading {{j.NoticeTime}}" data-parent="#accordionExample">
+              <div class="card-body">
+                <p>{{j.NoticeBody}}</p>
+                <p align="right">By:  {{j.Author}}  {{j.NoticeTime}}</p>
+              </div>
+            </div>
+          </div>
+
+
+          {% endfor %}
+          <br>
+          <br>
+          {% if Designation == 'Faculty' %}
+          <form  name="myForm" method="post" onsubmit="return validateForm()" enctype="multipart/form-data" action="noticeboard/addnotice">
+            <div class="form-group">
+              {% csrf_token %}
+              <input type="text" name="NoticeHead" class="form-control" placeholder="Notice Heading" />
+              <br>
+              <textarea rows="10" name="NoticeBody" class="form-control" placeholder="Notice Body" /></textarea>
+              <br>
+              <input type="submit" value="Add Notice">
+            </div>
+          </form>
+          {% endif %}
+        </div>
+
+      </div>
+      <div class="col-lg-2"></div>
+    </div>
+  </div>
+
+  <script>
+  function validateForm() {
+    if(document.forms["myForm"]["NoticeHead"].value.trim() == ""){
+      alert ("Empty Message Head!")
+      return false;
+    }
+    if(document.forms["myForm"]["NoticeBody"].value.trim() == ""){
+      alert ("Empty Message Body!")
+      return false;
+    }
+  }
+  </script>
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+</body>

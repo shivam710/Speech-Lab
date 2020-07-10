@@ -1,0 +1,70 @@
+{% extends "base_generic.html"%}
+{% block sidebar %}
+{% endblock %}
+{% block content %}
+<p> Course Registered </p>
+<br>
+<ul class="cards">
+   {% if RegisteredCourses %}
+   {% for course in RegisteredCourses %}
+   <li class="cards__item">
+
+      <div class = "card">
+         <div class="card__content">
+            <div class="card__title"><a href="{% url 'course:view_course' course.CourseInfo %}">{{ course.CourseID }} <i class="fas fa-sm fa-link"></i></a></div>
+            <p class="card__text">{{ course.AboutCourse }}</p>
+            <a href="{% url 'discussion:course_group' course.CourseInfo 1 %}" class="card-link"><button class="btn btn--block card__btn">Enter Discussion Room </button></a>
+         </div>
+      </div>
+   </li>
+   {% endfor %}
+   {% else %}
+   <div class="jumbotron">You Have Not Registered In Any Course </div>
+   {% endif %}
+
+</ul>
+<br>
+
+<p> TA in </p>
+<br>
+{% if TACoursesList %}
+<ul class ="cards">
+   {% for course in TACoursesList %}
+   <li class="cards__item">
+      <div class = "card">
+         <div class="card__content">
+            <div class="card__title"><a href="{% url 'course:view_course' course.CourseInfo %}">{{ course.CourseID }} <i class="fas fa-sm fa-link"></i></a></div>
+            <p class="card__text">{{ course.AboutCourse }}</p>
+            <a href="{% url 'discussion:course_group' course.CourseInfo 1 %}" class="card-link"><button class="btn btn--block card__btn">Enter Discussion Room </button></a>
+         </div>
+      </div>
+   </li>
+   {% endfor %}
+</ul>
+{% else %}
+<div class="jumbotron">You are not a TA in any course</div>
+{% endif %}
+
+<br>
+
+<p> Total Courses </p>
+<br>
+{% if TotalCourses %}
+<ul class ="cards">
+   {% for course in TotalCourses %}
+   <li class="cards__item">
+      <div class = "card">
+         <div class="card__content">
+            <div class="card__title">{{ course.CourseID }}</div>
+            <p class="card__text">{{ course.AboutCourse }}</p>
+            <a href="{% url 'course:enroll_course_page' course.CourseInfo %}" class="card-link"><button class="btn btn--block card__btn">Enroll Now</button></a>
+         </div>
+      </div>
+   </li>
+   {% endfor %}
+</ul>
+{% else %}
+<div class="jumbotron">No Other Courses Available</div>
+{% endif %}
+
+{% endblock %}

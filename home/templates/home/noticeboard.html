@@ -1,0 +1,61 @@
+{% extends 'home/layout.html' %}
+
+{% block content %}
+  <div class="accordion" id="accordionExample">
+    {% for i, j in stuff %}
+      {% if i == 0 %}
+        <div class="card">
+          <div class="card-header" id="heading{{i}}">
+            <h2 class="mb-0">
+              <button class="btn btn-light" type="button" data-toggle="collapse" data-target="#collapse{{i}}" aria-expanded="true" aria-controls="collapse{{i}}">
+                {{j.title}}
+              </button>
+            </h2>
+          </div>
+
+          <div id="collapse{{i}}" class="collapse show" aria-labelledby="heading{{i}}" data-parent="#accordionExample">
+            <div class="card-body">
+              {{j.text}}
+              <hr>
+              <b>Author</b>
+              <br>
+              {{j.author}}
+              <br>
+              <b>Created</b>
+              <br>
+              {{j.created}}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+      {% if i > 0 %}
+        <div class="card">
+          <div class="card-header" id="heading{{i}}">
+            <h2 class="mb-0">
+              <button class="btn btn-light collapsed" type="button" data-toggle="collapse" data-target="#collapse{{i}}" aria-expanded="false" aria-controls="collapse{{i}}">
+                {{j.title}}
+              </button>
+            </h2>
+          </div>
+
+          <div id="collapse{{i}}" class="collapse" aria-labelledby="heading{{i}}" data-parent="#accordionExample">
+            <div class="card-body">
+              {{j.text}}
+              <br>
+              <b>Author</b>
+              <br>
+              {{j.author}}
+              <br>
+              <b>Created</b>
+              <br>
+              {{j.created}}
+            </div>
+          </div>
+        </div>
+
+      {% endif %}
+    {% endfor %}
+  </div>
+
+
+{% endblock %}

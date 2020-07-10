@@ -1,0 +1,57 @@
+{% extends "base_generic.html" %}
+
+{% block sidebar %}
+  <li>
+    <a class="s-sidebar__nav-link" href="{% url 'course:show_attendance' CourseInfo %}">
+    Attendance and Grading
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course_material' CourseInfo %}">Study Material</a>
+  </li>
+
+  <li>
+    <a href="{% url 'course:view_course' CourseInfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_TA' CourseInfo %}">Teaching Assistants (TAs)</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' CourseInfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' CourseInfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' CourseInfo 1 %}">Discussion Room</a>
+  </li>
+{% endblock %}
+
+{% block content %}
+
+{% if Designation == 'Faculty' %}
+<a href="{% url 'course:add_TA' CourseInfo %}">
+  <p class="options">Add TA  <i class="fas fa-sm fa-link"></i></p>
+</a>
+{% endif %}
+
+<p class="options">Current TA's</p>
+
+<ul class="cards">
+{% for cTA in TA %}
+<li class ="cards__item">
+  <div class="card">
+    <div class ="card__image" style="background-image:url({{cTA.ProfilePic}})"> </div>
+    <div class="card__content">
+      
+      <div class="card__title">{{ cTA.FullName }}</div>
+      <div class="card__title">{{ cTA.Username }}</div>
+      
+    </div>
+  </div>
+</li>
+
+{% endfor %}
+</ul>
+
+{% endblock %}

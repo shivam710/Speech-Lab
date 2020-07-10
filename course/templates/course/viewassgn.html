@@ -1,0 +1,60 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  {% if Designation == 'Faculty' %}
+  <li>
+    <a href="{% url 'course:random_groups' cinfo aid %}">Randomly Allocate Groups</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course' cinfo%}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' cinfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' cinfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' cinfo 1 %}">Discussion Room</a>
+  </li>
+  {% else %}
+  <li>
+    <a href="{% url 'course:view_course' cinfo%}">Assignments</a>
+  </li>
+  
+  <li>
+    <a href="{% url 'discussion:events' cinfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' cinfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' cinfo 1 %}">Discussion Room</a>
+  </li>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% comment %} <a href="{% url 'course:add_course'%}"><p class="options">Add Group</p></a> {% endcomment %}
+
+<ul class="cards">
+{% for group in MyGroupList %}
+
+    <li class="cards__item">
+      <div class = "card">
+      <div class="card__content">
+        <div class="card__title"><a href="{% url 'course:view_group' cinfo aid group.GroupID %}">{{ group.GroupID }}</a></div>
+        {% if Designation == 'Faculty' %}
+        <a href="{% url 'course:update_attendance' cinfo aid group.GroupID %}"><button class="btn btn--block card_btn">Update Attendance</button></a>
+        <a href="{% url 'course:add_grade' cinfo aid group.GroupID %}"><button class="btn btn--block card_btn">Add Grade</button></a>
+        {% else %}
+        <a href="{% url 'discussion:group' cinfo aid group.GroupID %}" class="card-link"><button class="btn btn--block card_btn">Group Chat</button></a>
+        {% endif %}
+      </div>
+      </div>
+    </li>
+
+{% endfor %}
+</ul>
+{% endblock %}

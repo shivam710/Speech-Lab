@@ -1,0 +1,45 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  <li>
+    <a class="s-sidebar__nav-link" href="{% url 'course:show_attendance' CourseInfo %}">
+    Attendance and Grading
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course_material' CourseInfo %}">Study Material</a>
+  </li>
+
+  <li>
+    <a href="{% url 'course:view_course' CourseInfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_TA' CourseInfo %}">Teaching Assistants (TAs)</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' CourseInfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' CourseInfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' CourseInfo 1 %}">Discussion Room</a>
+  </li>
+{% endblock %}
+
+{% block content %}
+<div>
+{% if Designation == "Faculty" %}
+    <h5><a href="{% url 'course:add_course_material' CourseInfo %}">Add course material  <i class="fas fa-sm fa-link"></i> </a><h5>
+{% endif %}
+<h1>Course Materials</h1>
+</div>
+<div>
+
+<ul>
+{% for cm in CMaterials %}
+  <li>{{ cm.Name }} - <a href="{{ cm.Url }}" target="_blank"> Open/Download </a></li>
+{% endfor %}
+</ul>
+</div>
+{% endblock %}

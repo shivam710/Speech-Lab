@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <style>
+    <meta charset="utf-8"/>
+    p_noline {display: inline;
+        margin-top: 3em;
+        margin-bottom: 3em;
+        margin-left: 3em;
+        margin-right: 3em;}
+        </style>
+    </head>
+    <body>
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/home">Speech Lab, IITG</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown"
+          aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item">
+              <a class="nav-link" href="/home">Home<span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'course:dashboard' %}">Courses</a>
+            </li>
+
+          </ul>
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="{{sign_in_url}}">
+                {% if username == '' %}
+                  Log in with Outlook
+                {% else %}
+                  {{username}}
+                {% endif %}
+              </a>
+            </li>
+          </ul>
+
+        </div>
+      </nav>
+
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-2"></div>
+          <div class="col">
+
+            <div class="accordion" id="accordionExample2">
+              <div id='DynamicMessages' style='padding:50px 50px 50px 50px'></div>
+            </div>
+
+            <div class="accordion" id="accordionExample">
+              <div class="card">
+                <div class="card-header" id="headingOne">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                       Add a new message
+                    </button>
+                  </h2>
+                </div>
+
+                <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+                  <div class="card-body">
+                    <p><input class="form-control" placeholder="Message Head" id="chat-head-input" type="text" size="100"/></p>
+                    <p><input class="form-control" placeholder="Message Body" id="chat-message-input" type="text" size="100"/></p>
+                    <input class="btn btn-primary" id="chat-message-submit" type="button" value="Add message"/>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-header" id="headingTwo">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                      Add a new poll
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+                  <div class="card-body">
+                    <p><input class="form-control" id="poll-question-input" placeholder="Poll Question" type="text" size="100"/></p>
+                    <p><div id = "DynamicPollOption" > </div></p>
+                    <p><input class="btn btn-primary" id="poll-option-add" type="button" value="Add Poll Option"/>
+                    <input class="btn btn-danger" id="poll-option-del" type="button" value="Delete Last Option"/>
+                    <input class="btn btn-success" id="poll-submit" type="button" value="Add Poll"/></p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+
+          </div>
+          <div class="col-lg-2"></div>
+        </div>
+      </div>
+    </body>
+
+    <script>
+    var msgCnt = 0;
+    var cntPoll = 0;
+    var tempdata;
+    var CourseGroupID = '{{ CourseGroupID_json }}';
+    var CourseID = '{{ CourseID_json }}';
+    var GroupID= '{{ GroupID_json}}';
+    var AssignmentID='{{ AssignmentID_json }}';
+    var username = '{{username}}';
+    var selectColor=0;
+    var chatSocket;
+    if(GroupID == ""){
+    chatSocket = new WebSocket(
+        'ws://' + window.location.host +
+        '/ws/discussion/user/' + username + '/courses/'+ CourseID + '/coursegroup/' + CourseGroupID);
+    }
+    else {
+      chatSocket = new WebSocket(
+          'ws://' + window.location.host +
+          '/ws/discussion/user/' + username + '/courses/'+ CourseID + '/assignments/' + AssignmentID+'/groups/'+GroupID);
+    }
+        // var chatSocket2;
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            var messageHeadDom = document.querySelector('#chat-head-input');
+            var messageInputDom = document.querySelector('#chat-message-input');
+            var messageHead = messageHeadDom.value;
+            var message = messageInputDom.value;
+            if (message.trim() == "" || messageHead.trim() == ""){
+                alert("Empty message head or body!");
+                return;
+            }
+            chatSocket.send(JSON.stringify({
+                'IsPoll' : false,
+                'IsReply': false,
+                'ShowReply': false,
+                'messageHead' : messageHead,
+                'message': message,
+                'CourseID': CourseID,
+                'CourseGroupID': CourseGroupID,
+                'ReplyBody': '',
+                // 'MessageID': MessageID,
+            }));
+            alert('New message added successfully!');
+            messageHeadDom.value = '';
+            messageInputDom.value = '';
+        };
+
+        chatSocket.onmessage = function(e) {
+            var data = JSON.parse(e.data);
+            var MessageID = data['MessageID'];
+            // alert('jj');
+            // alert(MessageID);
+            // alert('kk');
+            tempdata = JSON.parse(e.data);
+            var IsPoll = data['IsPoll'];
+
+            var ShowReply = data['ShowReply'];
+            if (IsPoll == false){
+                var IsReply = data['IsReply'];
+                var MessageBox = document.createElement('p');
+                var ShowReplies = document.createElement('input');
+                // MessageDiv.classList.add("container");
+
+                var MessageDiv = document.createElement('div');
+                MessageDiv.classList.add("card");
+
+                if (IsReply == false){
+                    // alert('IsReply == false');
+                    // var MessageID = data['MessageID'];
+                    // alert(MessageID);
+                    
+                    var MessageCardBody = document.createElement('div');
+                    msgCnt += 1;
+                    var messageHead = data['messageHead'];
+                    var message = data['message'];
+                    var ReplyBody = data['ReplyBody'];
+                    var Author=data['Author'];
+                    var open = false;
+
+                    var MessageDivHead = document.createElement('div');
+                    MessageDivHead.classList.add("card-header");
+                    MessageDivHead.id = MessageID + 'headingOne';
+
+                    var DivHeader = document.createElement('h2');
+                    DivHeader.classList.add("mb-0");
+
+
+                    var DivButton = document.createElement('button');
+                    DivButton.classList.add("btn");
+                    DivButton.classList.add("btn-block");
+
+                    if(msgCnt != 1){
+                      DivButton.classList.add("collapsed");
+                    }
+                    DivButton.type = "button";
+                    DivButton.setAttribute("data-toggle", "collapse");
+                    DivButton.setAttribute("data-target", '#'+MessageID + "collapseOne");
+                    if (msgCnt == 1){
+                      DivButton.setAttribute("aria-expanded", "true");
+                    }
+                    else {
+                      DivButton.setAttribute("aria-expanded", "false");
+                    }
+                    DivButton.setAttribute("aria-controls", MessageID + "collapseOne")
+                    DivButton.innerHTML = '<h5 align="left"><b>'+ messageHead + '</b></h5><p align="left">' + message +  '</p>';
+                    DivButton.innerHTML += '<p align="right">'+Author+'</p>';
+
+
+                    MessageDiv.id = MessageID;
+                    DivButton.onclick = function(){
+                        // if (open == false){
+                        //     // alert('yay');
+                        //     open = true;
+                            chatSocket.send(JSON.stringify({
+                                    'IsPoll' : false,
+                                    'ShowReply': true,
+                                    'CourseID': CourseID,
+                                    'CourseGroupID': CourseGroupID,
+                                    'MessageID': MessageID
+                                }));
+                      // }
+                    }
+
+                    DivHeader.appendChild(DivButton);
+                    MessageDivHead.appendChild(DivHeader);
+                    MessageDiv.appendChild(MessageDivHead);
+
+                    var MessageDivBody = document.createElement('div');
+                    MessageDivBody.id = MessageID + 'collapseOne';
+                    MessageDivBody.classList.add('collapse');
+                    if(msgCnt == 1){
+                      MessageDivBody.classList.add('show');
+                    }
+                    MessageDivBody.setAttribute("aria-labelledby", MessageID + 'headingOne');
+                    MessageDivBody.setAttribute("data-parent", '#accordionExample2');
+
+
+                    MessageCardBody.classList.add('card-body');
+                    MessageCardBody.id = MessageID + 'CardBody';
+
+                    MessageDivBody.appendChild(MessageCardBody);
+                    MessageDiv.appendChild(MessageDivBody);
+                    document.getElementById("DynamicMessages").appendChild(MessageDiv);
+
+                }
+                // Displaying replies to messages
+                else{
+                    // alert('IsReply == true');
+                    if(ShowReply==true){
+                        // alert('ShowReply==true');
+
+                      var DivReply = document.createElement('div');
+                      var DivReplyMsg = document.createElement('div');
+                      // var MessageID = data['MessageID'];
+                      // data = JSON.parse(e.data);
+                      // MessageID = data['MessageID'];
+                      // alert('dd');
+                      // alert(MessageID);
+                      DivReplyMsg.id = MessageID + 'DivReplyMsg';
+
+                      var msg='';
+                      var i=0
+                      for(i=0;i<data['Replies'].length;i++){
+                          msg='<p>'+msg+'<br/><b>'+ data['Replies'][i]['Author']+'</b>: '+data['Replies'][i]['ReplyBody']+'</p>';
+                      }
+                      DivReplyMsg.innerHTML = msg;
+                      // alert('3');
+                      // alert(data);
+                      // alert(MessageID);
+
+                      var ReplyInput = document.createElement('input');
+                      ReplyInput.classList.add('form-control');
+                      ReplyInput.placeholder = "Your Reply Here";
+                      var ReplyButton = document.createElement('input');
+                      ReplyButton.type = 'button';
+                      ReplyButton.value = 'Send Reply';
+                      // ReplyBody
+                      ReplyButton.classList.add('btn');
+                      ReplyButton.classList.add('btn-primary');
+                      // alert('4');
+
+                      DivReply.appendChild(DivReplyMsg);
+                      DivReply.appendChild(document.createElement('p'));
+                      DivReply.appendChild(ReplyInput);
+                      DivReply.appendChild(document.createElement('p'));
+                      DivReply.appendChild(ReplyButton);
+                      DivReply.appendChild(document.createElement('p'));
+                      var div2 = document.getElementById(MessageID + 'CardBody');
+                      // alert('5');
+                      // alert(div2);
+                      while(div2.firstChild){
+                          div2.removeChild(div2.firstChild);
+                      }
+                      // alert('6');
+                      document.getElementById(MessageID + 'CardBody').appendChild(DivReply);
+
+                      ReplyButton.onclick = function(){
+                          // alert(MessageID);
+                          if ( ReplyInput.value.trim() == ""){
+                              alert('Cannot send empty reply!');
+                              return;
+                          }
+                          chatSocket.send(JSON.stringify({
+                              'IsPoll' : false,
+                              'IsReply': true,
+                              'ShowReply': false,
+                              'messageHead' : '',
+                              'message': '',
+                              'CourseID': CourseID,
+                              'CourseGroupID': CourseGroupID,
+                              'ReplyBody': ReplyInput.value,
+                              'MessageID': MessageID,
+                          }));
+                          ReplyInput.value = ""
+                          // alert('7');
+                      };
+                      // alert('8');
+                      }
+
+                      else{
+                        // alert('ShowReply==false');
+                        document.getElementById(data['MessageID']+'DivReplyMsg').innerHTML+= '<br /><b>'+data['Author']+'</b>: '+data['ReplyBody'];
+                      }
+                    }
+                }
+            // Displaying polls
+            else{
+              var ShowReply = data['ShowReply'];
+
+              var MessageBox = document.createElement('p');
+              var ShowReplies = document.createElement('input');
+
+              var MessageDiv = document.createElement('div');
+              MessageDiv.classList.add("card");
+
+              if (ShowReply == false){
+                  var Author=data['Author'];
+                  var MessageID = data['MessageID'];
+                  var MessageCardBody = document.createElement('div');
+                  var PollQues = data['PollQues'];
+                  msgCnt += 1;
+                  var open = false;
+
+                  var MessageDivHead = document.createElement('div');
+                  MessageDivHead.classList.add("card-header");
+                  MessageDivHead.id = MessageID + 'headingOne';
+
+                  var DivHeader = document.createElement('h2');
+                  DivHeader.classList.add("mb-0");
+
+
+                  var DivButton = document.createElement('button');
+                  DivButton.classList.add("btn");
+                  DivButton.classList.add("btn-block");
+                  if(msgCnt != 1){
+                    DivButton.classList.add("collapsed");
+                  }
+                  DivButton.type = "button";
+                  DivButton.setAttribute("data-toggle", "collapse");
+                  DivButton.setAttribute("data-target", '#'+MessageID + "collapseOne");
+                  if (msgCnt == 1){
+                    DivButton.setAttribute("aria-expanded", "true");
+                  }
+                  else {
+                    DivButton.setAttribute("aria-expanded", "false");
+                  }
+                  DivButton.setAttribute("aria-controls", MessageID + "collapseOne")
+                  DivButton.innerHTML = '<h5 align="left"><b>'+ PollQues + '</b></h5>';
+                  DivButton.innerHTML += '<p align="right">'+Author+'</p>';
+
+
+                  MessageDiv.id = MessageID;
+                  DivButton.onclick = function(){
+
+                      chatSocket.send(JSON.stringify({
+                          'IsPoll' : true,
+                          'ShowReply': true,
+                          'CourseID': CourseID,
+                          'CourseGroupID': CourseGroupID,
+                          'MessageID': MessageID,
+                      }));
+                  }
+
+                  DivHeader.appendChild(DivButton);
+                  MessageDivHead.appendChild(DivHeader);
+                  MessageDiv.appendChild(MessageDivHead);
+
+                  var MessageDivBody = document.createElement('div');
+                  MessageDivBody.id = MessageID + 'collapseOne';
+                  MessageDivBody.classList.add('collapse');
+                  if(msgCnt == 1){
+                    MessageDivBody.classList.add('show');
+                  }
+                  MessageDivBody.setAttribute("aria-labelledby", MessageID + 'headingOne');
+                  MessageDivBody.setAttribute("data-parent", '#accordionExample2');
+
+
+                  MessageCardBody.classList.add('card-body');
+                  MessageCardBody.id = MessageID + 'CardBody';
+
+                  MessageDivBody.appendChild(MessageCardBody);
+                  MessageDiv.appendChild(MessageDivBody);
+                  document.getElementById("DynamicMessages").appendChild(MessageDiv);
+
+              }
+              else{
+                    var DivReply = document.createElement('form');
+                    var MessageID = data['MessageID'];
+                    DivReply.id = MessageID + 'DivReply';
+                    var PollOptFull = data['PollOpt'];
+                    var PollCntFull = data['PollCnt'];
+                    var UserOpt = data['UserOpt'];
+
+                    var msg='';
+                    var i=0;
+                    var totalvotes=0;
+                    for (i=0; i<PollOptFull.length; i++){
+                        totalvotes += PollCntFull[i]
+                    }
+
+
+                    for (i=0; i<PollOptFull.length; i++){
+                        // PollOptDiv = document.createElement('div');
+                        var PollOptDiv = document.createElement('div');
+                        var PollOpt = document.createElement('p');
+                        var Opt = document.createElement('input');
+                        var PollProgTot= document.createElement('div');
+                        var PollProg = document.createElement('div');
+
+                        PollProgTot.classList.add("progress");
+                        PollProg.classList.add("progress-bar");
+                        PollProg.classList.add("w3-round");
+                        PollProg.classList.add(".active");
+
+                        PollProg.role = "progressbar";
+                        if (PollCntFull[i] != 0)
+                            PollProg.innerHTML = PollCntFull[i] + " vote(s)";
+                        PollProg.style.width = (PollCntFull[i]*100)/totalvotes + "%";
+
+                        PollProgTot.appendChild(PollProg);
+                        PollOptDiv.id = MessageID + '_Poll' + i;
+
+                        Opt.type = 'radio';
+                        Opt.name = MessageID;
+                        Opt.value = i;
+                        if (UserOpt == i)
+                            Opt.checked = true;
+                        PollOpt.innerHTML += PollOptFull[i];
+                        PollOpt.setAttribute("style", "display: inline");
+
+                        DivReply.appendChild(Opt)
+                        DivReply.appendChild(PollOpt);
+                        DivReply.appendChild(PollProgTot);
+                        DivReply.appendChild(PollOptDiv);
+                    }
+
+
+                    var SubmitVote = document.createElement('input');
+                    SubmitVote.type = 'button';
+                    SubmitVote.value = 'Submit Vote';
+                    // ReplyBody
+                    SubmitVote.classList.add('btn');
+                    SubmitVote.classList.add('btn-primary');
+
+
+                    var div2 = document.getElementById(MessageID + 'CardBody');
+                    while(div2.firstChild){
+                        div2.removeChild(div2.firstChild);
+                    }
+                    var div2 = document.getElementById(MessageID + 'CardBody');
+                    div2.appendChild(DivReply);
+                    div2.appendChild(document.createElement('p'));
+                    div2.appendChild(SubmitVote);
+
+                    SubmitVote.onclick = function(){
+                            var SelOpt = DivReply.elements[MessageID].value;
+                            if (SelOpt.trim() == ""){
+                                alert('No option selected');
+                                return;
+                            }
+                            chatSocket.send(JSON.stringify({
+                                'IsPoll' : true,
+                                'IsReply' : true,
+                                'ShowReply': false,
+                                'CourseID': CourseID,
+                                'CourseGroupID': CourseGroupID,
+                                'MessageID': MessageID,
+                                'UserOpt' : SelOpt,
+                            }));
+                            alert('Successfully Voted! View options again to see your vote')
+                        }
+                  }
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#poll-option-add').onclick = function(e) {
+            cntPoll += 1;
+            var PollOption = document.createElement('div');
+            // var PollOptionNum = document.createElement('p');
+            var PollOptionInput = document.createElement('input');
+
+            // PollOptionNum.setAttribute("style", "display: inline");
+            // PollOptionNum.innerHTML = 'Option ' + cntPoll.toString() + ':  ';
+
+            PollOptionInput.id = 'poll-option-input' + cntPoll.toString();
+            PollOptionInput.placeholder = "Option " + cntPoll;
+            PollOptionInput.classList.add("form-control")
+            // PollOptionInput.GotFocus();
+
+            PollOption.id = 'poll-option' + cntPoll.toString();
+
+            // PollOption.appendChild(PollOptionNum);
+            PollOption.appendChild(PollOptionInput);
+            // PollOption.appendChild(document.createElement('br'));
+            document.getElementById('DynamicPollOption').appendChild(PollOption);
+        };
+
+        document.querySelector('#poll-option-del').onclick = function(e) {
+            if (cntPoll < 1){
+                alert('No poll option to delete!');
+                return;
+            }
+            var elt = document.getElementById('poll-option' + cntPoll.toString());
+            elt.parentNode.removeChild(elt);
+            cntPoll -= 1;
+        };
+
+        document.querySelector('#poll-submit').onclick = function(e) {
+            if (cntPoll < 2){
+                alert('Not enough options to submit');
+                return;
+            }
+            var pollQuesDom = document.querySelector('#poll-question-input');
+            var pollQues = pollQuesDom.value;
+            if (pollQues.trim() == ""){
+                alert("Poll Question cannot be empty!");
+                return;
+            }
+            var pollJSON = {
+                'IsPoll' : true,
+                'IsReply': false,
+                'ShowReply': false,
+                'CourseID': CourseID,
+                'CourseGroupID': CourseGroupID,
+                'PollQues': pollQues,
+                // 'PollOptNum' cntPoll,
+                'PollOptions':[]
+            }
+            var i;
+            for (i=1; i<=cntPoll; i+=1){
+                if (document.getElementById('poll-option-input' + i.toString()).value.trim() == ""){
+                    alert("Poll option cannot be empty");
+                    return;
+                }
+            }
+            for (i=1; i<=cntPoll; i+=1){
+                var pollOptFull = document.getElementById('poll-option' + i.toString());
+                var pollOptDom = document.getElementById('poll-option-input' + i.toString());
+                // var newOption ='PollOption' + i.toString();
+                var newOptionVal = pollOptDom.value;
+                pollJSON.PollOptions.push(newOptionVal);
+                pollOptFull.parentNode.removeChild(pollOptFull);
+            }
+            cntPoll = 0;
+            pollQuesDom.value = '';
+            chatSocket.send(JSON.stringify(pollJSON));
+        };
+
+    </script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    </html>

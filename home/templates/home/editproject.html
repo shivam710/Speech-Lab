@@ -1,0 +1,113 @@
+{% extends 'home/user.html' %}
+{% block content %}
+<div class="container-fluid">
+    <form action="update/" method="post">
+        <div class="form-group">
+            <label><b>Project Title</b></label>
+            <input type="text" value="{{project.Title}}" name="title" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label><b>About Project</b></label>
+            <textarea name="about" class="form-control" rows="3">{{project.AboutProject}}</textarea>
+        </div>
+        <div class="form-group">
+            <label><b>Mentors</b></label>
+            <textarea name="mentors" class="form-control" rows="3">{{project.Mentor}}</textarea>
+            <small id="emailHelp" class="form-text text-muted">Please enter names on separate lines</small>
+        </div>
+        <div class="form-group">
+            <label><b>Members</b></label>
+            <textarea name="people" class="form-control" rows="3">{{project.People}}</textarea>
+            <small id="emailHelp" class="form-text text-muted">Please enter names on separate lines</small>
+        </div>
+        <div class="form-group">
+            <label><b>Achievements</b></label>
+            <textarea name="achievements" class="form-control" rows="3">{{project.Achievements}}</textarea>
+            <small id="emailHelp" class="form-text text-muted">Please enter achievements on separate lines</small>
+        </div>
+
+        <label><b>Media</b></label>
+        <input type="file" value="cmuploader" id="cmuploader" class="form-control-file" accept="video/*" name="yehainame">
+        <input type="hidden" name="cmurl" id="cmurl">
+        <input type="hidden" name="filename" id="filename">
+        <progress value="0" max="100" id="progrescmupload">0%</progress>
+        <br>
+        <div class="form-group">
+            <button type="button" onclick="uploadcm()" class="btn btn-dark">Upload</button>
+        </div>
+        {% csrf_token %}
+        <button type="submit" class="btn btn-dark">Update Project</button>
+
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyAofbKvwCGGlBRanZ8n3ADEaq1OC76cgy4",
+        authDomain: "speechlab-40e3b.firebaseapp.com",
+        databaseURL: "https://speechlab-40e3b.firebaseio.com",
+        projectId: "speechlab-40e3b",
+        storageBucket: "speechlab-40e3b.appspot.com",
+        messagingSenderId: "982247766448",
+        appId: "1:982247766448:web:534fe9413397dafd0efe75",
+        measurementId: "G-BDCJ4Y0QJB"
+    };
+    firebase.initializeApp(config);
+
+
+
+    //Listener
+    // var form = document.querySelector('form');
+    // form.addEventListener('submit', function(event) {
+    // event.preventDefault();
+    function uploadcm() {
+        var cmuploader = document.getElementById('cmuploader');
+        var progrescmupload = document.getElementById('progrescmupload');
+        var file = cmuploader.files[0];
+        const file_name_fields = file.name.split('.');
+        const extension = file_name_fields[file_name_fields.length - 1]
+        const supported_formats = ['mp4', 'webm', 'mkv', 'ogg']
+        if (supported_formats.includes(extension) == false){
+            window.alert("Please upload valid video file");
+            return;
+        }
+
+        var subfolder = "{{ username }}"
+        //var file = event.target.files[0];
+        var storageRef = firebase.storage().ref('Projects/' + subfolder + '/' + file.name);
+        var task = storageRef.put(file);
+
+        task.on('state_changed',
+            function progress(snapshot) {
+                var perc = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progrescmupload.value = perc;
+            },
+
+            function error(err) {
+
+            },
+
+            function complete() {
+                task.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+                    console.log('File available at', downloadURL);
+                    document.getElementById('cmurl').value = downloadURL;
+                    document.getElementById('filename').value = file.name;
+                    document.getElementById("cmform").submit();
+
+
+                    alert(file.name + " Upload Success!");
+
+
+                });
+
+            }
+        );
+    }
+
+
+</script>
+{% endblock %}

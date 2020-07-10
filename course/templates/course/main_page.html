@@ -1,0 +1,28 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+{% endblock %}
+
+{% block content %}
+
+
+<a href="{% url 'course:add_course'%}"><p class="options">Add Courses  <i class="fas fa-sm fa-link"></i></p></a>
+
+<ul class="cards">
+{% for course in CourseDetails %}
+
+    <li class="cards__item">
+      <div class = "card">
+
+      <div class="card__content">
+        <div class="card__title"><a href="{% url 'course:view_course' course.CourseInfo %}">{{ course.CourseID }}  <i class="fas fa-sm fa-link"></i></a></div>
+        {% comment %} <h6 class="card-subtitle mb-2 text-muted"></h6> {% endcomment %}
+        <p class="card__text">{{ course.AboutCourse }}</p>
+        <a href="{% url 'discussion:course_group' course.CourseID 1 %}" class="card-link"><button class="btn btn--block card__btn">Discussion Group</button></a>
+      </div>
+        </div>
+    </li>
+
+{% endfor %}
+</ul>
+{% endblock %}

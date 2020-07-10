@@ -1,0 +1,56 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  {% if Designation == 'Faculty' %}
+  <li>
+    <a href="{% url 'course:random_groups' cinfo aid %}">Randomly Allocate Groups</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course' cinfo%}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' cinfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' cinfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' cinfo 1 %}">Discussion Room</a>
+  </li>
+  {% else %}
+  <li>
+    <a href="{% url 'course:view_course' cinfo%}">Assignments</a>
+  </li>
+  
+  <li>
+    <a href="{% url 'discussion:events' cinfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' cinfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' cinfo 1 %}">Discussion Room</a>
+  </li>
+  {% endif %}
+{% endblock %}
+
+
+{% block content %}
+{% if user_list %}
+<form method="POST">
+  {% csrf_token %}
+  {% for student in user_list %}
+    <div class="form-group">
+      <label for="exampleInputEmail1">{{student.FullName}}</label>
+      <input type="number" class="form-control" name={{student.Username}} aria-describedby="aboutcourse" value=0>
+    </div>
+  {% endfor %}
+  <button type="submit" class="btn btn-success">Submit Grade</button>
+</form>
+{% else %}
+<div class="jumbotron">
+  <p>No Students Present To Be Graded In This Group</p>
+</div>
+{% endif %}
+
+{% endblock %}

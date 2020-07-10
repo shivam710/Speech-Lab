@@ -1,0 +1,35 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  {% if Designation == 'Faculty' %}
+  <li>
+    <a href="{% url 'course:update_grp' cinfo aid GroupDetails.GroupID %}">Update Details</a>
+  </li>
+  {% endif %}
+  <li>
+    <a href="{% url 'course:up_submission' cinfo aid GroupDetails.GroupID %}">Submissions</a>
+  </li>
+    <li>
+    <a href="{% url 'course:view_course' cinfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' cinfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' cinfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' cinfo 1 %}">Discussion Room</a>
+  </li>
+
+{% endblock %}
+
+{% block content %}
+
+  <h1> {{ GroupDetails.GroupID }} </h1>
+  <h2><br> {{ GroupDetails.ProjectTitle }} </h2>
+  <br>
+  <p> {{ GroupDetails.ProblemStatement }} </p>
+  <p>Team members: {% for student in StudentDetails %} <br>  Name: {{ student.FullName }} &emsp; Roll No: {{ student.RollNumber }} {% endfor %}<br></p>
+
+{% endblock %}

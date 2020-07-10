@@ -1,0 +1,146 @@
+{% extends 'home/user.html' %}
+{% block content %}
+<div class="row">
+  <div class="col">
+<form action="edit/" method="post">
+  <div class="form-group">
+    <label><b>Full Name</b></label>
+    <input type="text" value="{{user.FullName}}" name="about_me" class="form-control" readonly>
+  </div>
+  <div class="form-group">
+    <label><b>Username</b></label>
+    <input type="text" value="{{user.id}}" name="userID" class="form-control" readonly>
+  </div>
+  <div class="form-group">
+    <label><b>Department</b></label>
+    <input type="text" value="{{user.Department}}" name="dept" class="form-control" readonly>
+  </div>
+  {% if isStudent == 1%}
+  <div class="form-group">
+    <label><b>Programme</b></label>
+    <input type="text" value="{{user.Program}}" name="program" class="form-control" readonly>
+  </div>
+  <div class="form-group">
+    <label><b>Roll Number</b></label>
+    <input type="text" value="{{user.RollNumber}}" name="rollno" class="form-control" readonly>
+  </div>
+  {% endif %}
+  {% if isStudent == 0%}
+  <div class="form-group">
+    <label><b>Designation</b></label>
+    <input type="text" value="{{user.CollegeDesignation}}" name="desgn" class="form-control" readonly>
+  </div>
+  {% endif %}
+  <div class="form-group">
+    <label><b>About Me</b></label>
+    <input type="text" value="{{user.About}}" name="about_me" class="form-control">
+  </div>
+  <div class="form-group">
+  <label><b>Contact</b></label>
+  <input type="text" value="{{user.Contact}}" name="contact" class="form-control">
+  </div>
+  <div class="form-group">
+    <label><b>Home Page</b></label>
+    <input type="text" value="{{user.URL.Homepage}}" name="homepage" class="form-control">
+  </div>
+  <div class="form-group">
+    <label><b>Github</b></label>
+    <input type="text" value="{{user.URL.Github}}" name="github" class="form-control">
+  </div>
+  <div class="form-group">
+    <label><b>LinkedIn</b></label>
+    <input type="text" value="{{user.URL.Linkedin}}" name="linkedin" class="form-control">
+  </div>
+  <div class="form-group">
+    <label>Profile Picture</label>
+    <input type="file" value="cmuploader" id="cmuploader" class="form-control-file accept=" image/*"> <input
+      type="hidden" name="cmurl" id="cmurl">
+    <input type="hidden" name="filename" id="filename">
+    <progress value="0" max="100" id="progrescmupload">0%</progress>
+  </div>
+  <br>
+  <div class="form-group">
+    <button type="button" onclick="uploadcm()" class="btn btn-dark">Upload</button>
+  </div>
+  {% csrf_token %}
+
+  <button type="submit" class="btn btn-dark">Save Profile</button>
+
+</form>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
+<script>
+  // Initialize Firebase
+  var config = {
+        apiKey: "AIzaSyAofbKvwCGGlBRanZ8n3ADEaq1OC76cgy4",
+        authDomain: "speechlab-40e3b.firebaseapp.com",
+        databaseURL: "https://speechlab-40e3b.firebaseio.com",
+        projectId: "speechlab-40e3b",
+        storageBucket: "speechlab-40e3b.appspot.com",
+        messagingSenderId: "982247766448",
+        appId: "1:982247766448:web:534fe9413397dafd0efe75",
+        measurementId: "G-BDCJ4Y0QJB"
+    };
+  firebase.initializeApp(config);
+
+
+
+  //Listener
+  // var form = document.querySelector('form');
+  // form.addEventListener('submit', function(event) {
+  // event.preventDefault();
+  function uploadcm() {
+    
+    var cmuploader = document.getElementById('cmuploader');
+    var progrescmupload = document.getElementById('progrescmupload');
+    var file = cmuploader.files[0];
+    const file_name_fields = file.name.split('.');
+    const extension = file_name_fields[file_name_fields.length - 1]
+
+    const supported_formats = ['png', 'jpg', 'jpeg', 'tiff']
+    if (supported_formats.includes(extension) == false) {
+      window.alert("Please upload valid picture file");
+      return;
+    }
+    
+
+    var subfolder = "{{ username }}"
+    //var file = event.target.files[0];
+    var storageRef = firebase.storage().ref('ProfileImages/' + subfolder + '/' + file.name);
+    var task = storageRef.put(file);
+    
+
+    task.on('state_changed',
+      function progress(snapshot) {
+        var perc = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+        progrescmupload.value = perc;
+      },
+
+      function error(err) {
+
+      },
+
+      function complete() {
+        task.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+          console.log('File available at', downloadURL);
+          document.getElementById('cmurl').value = downloadURL;
+          document.getElementById('filename').value = file.name;
+          document.getElementById("cmform").submit();
+
+
+          alert(file.name + " Upload Success!");
+
+
+        });
+
+      }
+    );
+  }
+
+
+</script>
+{% endblock %}

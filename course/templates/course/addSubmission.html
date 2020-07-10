@@ -1,0 +1,126 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  
+  {% if Designation == 'Faculty' %}
+
+  <li>
+    <a href="{% url 'course:update_grp' cinfo aid gid %}">Update Details</a>
+  </li>
+  {% endif %}
+  <li>
+    <a href="{% url 'course:up_submission' cinfo aid gid %}">Submissions</a>
+  </li>
+    <li>
+    <a href="{% url 'course:view_course' cinfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' cinfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' cinfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' cinfo 1 %}">Discussion Room</a>
+  </li>
+  
+{% endblock %}
+
+{% block content %}
+
+<div>
+<h1> Current Submission </h1>
+<h3>
+    <a href="{{sub.Url}}">{{ sub.Name }}</a>
+</h3>
+</div>
+
+{% if Designation == 'Student' %}
+<h1>Add Submission</h1>
+{{Designation}}
+
+
+<div>
+<form action="{% url 'course:up_submission' cinfo  aid gid %}" id="cmform" method="POST">
+{% csrf_token %}
+<div class="custom-file mb-3">
+    <input type="file" class="custom-file-input" id="cmuploader" value="cmuploader">
+    <label class="custom-file-label" for="cmuploader">Choose file</label>
+</div>
+<button type="button" class="btn btn-primary" onclick = "uploadcm()">Upload</button>
+<br><br>
+<div class="progress">
+  <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progrescmupload"></div>
+</div>
+<input type="hidden" name="cmurl" id="cmurl">
+<input type="hidden" name="filename" id="filename">
+</form>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/5.9.4/firebase.js"></script>
+{% endblock %}
+
+{% block endscripts %}
+<script>
+
+// Initialize Firebase
+var config = {
+  apiKey: "AIzaSyAofbKvwCGGlBRanZ8n3ADEaq1OC76cgy4",
+  authDomain: "speechlab-40e3b.firebaseapp.com",
+  databaseURL: "https://speechlab-40e3b.firebaseio.com",
+  projectId: "speechlab-40e3b",
+  storageBucket: "speechlab-40e3b.appspot.com",
+  messagingSenderId: "982247766448",
+  appId: "1:982247766448:web:534fe9413397dafd0efe75",
+  measurementId: "G-BDCJ4Y0QJB"
+};
+firebase.initializeApp(config);
+
+// Add the following code if you want the name of the file appear on select
+$(".custom-file-input").on("change", function() {
+  var fileName = $(this).val().split("\\").pop();
+  $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+});
+
+function uploadcm()
+{
+    var cmuploader = document.getElementById('cmuploader');
+    var progrescmupload = document.getElementById('progrescmupload');
+    var file = cmuploader.files[0];
+    var subfolder = "{{ cinfo }}"
+    //var file = event.target.files[0];
+    var storageRef = firebase.storage().ref('Courses/' + subfolder + '/' + file.name);
+    var task = storageRef.put(file);
+
+    task.on('state_changed',
+        function progress(snapshot) {
+            var perc = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            $('#progrescmupload').css('width', perc+'%').attr('aria-valuenow', perc);
+        },
+
+        function error(err) {
+
+        },
+
+        function complete() {
+            task.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+                console.log('File available at', downloadURL);
+                document.getElementById('cmurl').value = downloadURL;
+                document.getElementById('filename').value = file.name;
+                document.getElementById("cmform").submit();
+                //window.alert(cmurl);
+                alert(file.name + " Upload Success!");
+                //document.location.href = cmurl;
+
+            });
+
+        }
+    );
+}
+
+</script>
+{% endblock %}

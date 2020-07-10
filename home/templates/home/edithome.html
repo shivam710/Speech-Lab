@@ -1,0 +1,35 @@
+{% extends 'home/user.html' %}
+{% block content %}
+<form action="save/" method="POST">
+    <h4 class="text-center">Add new section</h4>
+    <div class="form-group">
+        <label><b>Add Title</b></label>
+        <input type="text" name="newT" class="form-control">
+    </div>
+    <div class="form-group">
+        <label><b>Add Content</b></label>
+        <textarea name="newC" class="form-control" rows="3"></textarea>
+    </div>
+    <br>
+    <br>
+    <h5 class="text-center">Sections can be deleted by leaving any one of the fields (Title or Content) empty.</h5>
+
+    {% for i, j in home_list %}
+    <div class="form-group">
+        <label><b>Title {{i}}</b></label>
+        <input type="text" value="{{j.title}}" name="t{{i}}" class="form-control">
+    </div>
+    <div class="form-group">
+        <label><b>Content {{i}}</b></label>
+        <textarea name="c{{i}}" class="form-control" rows="3">{{j.text}}</textarea>
+    </div>
+    {% endfor %}
+    <input type="hidden" value="{{section_no}}" name="section_no">
+    {% csrf_token %}
+    
+    <button type="submit" class="btn btn-dark">Save HomePage</button>
+    <br>
+    <br>
+
+</form>
+{% endblock %}

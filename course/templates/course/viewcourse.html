@@ -1,0 +1,58 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  <li>
+    <a class="s-sidebar__nav-link" href="{% url 'course:show_attendance' CourseInfo %}">
+    Attendance and Grading
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course_material' CourseInfo %}">Study Material</a>
+  </li>
+
+  <li>
+    <a href="{% url 'course:view_course' CourseInfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_TA' CourseInfo %}">Teaching Assistants (TAs)</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' CourseInfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' CourseInfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' CourseInfo 1 %}">Discussion Room</a>
+  </li>
+{% endblock %}
+
+
+{% block content %}
+
+{% if Designation == "Faculty" %}
+    <a href="{% url 'course:add_assgn' CourseInfo %}"><p class="options">Add Assignment  <i class="fas fa-sm fa-link"></i></p> </a>
+{% endif %}
+
+<ul class="cards">
+
+  {% for assgn in AssgnDetails %}
+  <li class="cards__item">
+    <div class="card">
+      <div class="card__content">
+        <div class="card__title"><a href="{% url 'course:view_assgn' CourseInfo assgn.AssignmentID %}">{{ assgn.Name }}  <i class="fas fa-sm fa-link"></i></a></div>
+
+        <div class="card__subtitle">Deadline : {{assgn.Deadline}}</div>
+        <p class="card__text">
+        {{assgn.About}}
+        </p>
+
+        {% if Designation == 'Faculty' %}
+        <a href="{% url 'course:up_assgn' CourseInfo assgn.AssignmentID %}"><button class="btn btn--block card__btn">EDIT DETAILS</button></a>
+        {% endif %}
+      </div>
+    </div>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}

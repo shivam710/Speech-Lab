@@ -1,0 +1,35 @@
+{% extends 'home/user.html' %}
+{% block content %}
+<form action="save/" method="POST">
+    <h4 class="text-center">Add FAQ</h4>
+    <div class="form-group">
+        <label><b>Add Question</b></label>
+        <input type="text" name="newQ" class="form-control">
+    </div>
+    <div class="form-group">
+        <label><b>Add Answer</b></label>
+        <input type="text" name="newA" class="form-control">
+    </div>
+    <br>
+    <br>
+    <h5 class="text-center">Question can be deleted by leaving any one of the fields (Question or Answer) empty.</h5>
+
+    {% for i, j in faq_list %}
+    <div class="form-group">
+        <label><b>Question {{i}}</b></label>
+        <input type="text" value="{{j.q}}" name="q{{i}}" class="form-control">
+    </div>
+    <div class="form-group">
+        <label><b>Answer {{i}}</b></label>
+        <input type="text" value="{{j.a}}" name="a{{i}}" class="form-control">
+    </div>
+    {% endfor %}
+    <input type="hidden" value="{{numberOfFAQ}}" name="numberOfFAQ">
+    {% csrf_token %}
+    
+    <button type="submit" class="btn btn-dark">Save FAQs</button>
+    <br>
+    <br>
+
+</form>
+{% endblock %}

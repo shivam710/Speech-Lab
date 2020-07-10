@@ -1,0 +1,19 @@
+{% extends 'home/user.html' %}
+{% block content %}
+<form action="save/" method="POST">
+    <div class="form-group">
+        <label><b>Email</b></label>
+        <textarea name="email" class="form-control" rows="3">{{Contact.Email}}</textarea>
+    </div>
+    <div class="form-group">
+        <label><b>Address</b></label>
+        <textarea name="address" class="form-control" rows="3">{{Contact.Location}}</textarea>
+    </div>
+    <div class="form-group">
+        <label><b>Phone Number</b></label>
+        <textarea name="phone" class="form-control" rows="3">{{Contact.PhoneNumber}}</textarea>
+    </div>
+    {% csrf_token %}
+    <button type="submit" class="btn btn-dark">Save Contact Info</button>
+</form>
+{% endblock %}

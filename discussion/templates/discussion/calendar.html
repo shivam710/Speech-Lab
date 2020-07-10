@@ -1,0 +1,6 @@
+<iframe src="https://calendar.google.com/calendar/embed?height=600&amp;wkst=1&amp;bgcolor=%23FFFFFF&amp;src={{CalendarID}}&amp;color=%231B887A&amp;ctz=Asia%2FKolkata" style="border-width:0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+<br>
+<form method="post" enctype="multipart/form-data" action="{% url 'discussion:create_calendar' CourseID %}">
+  {% csrf_token %}
+  <input type="submit" value="Add calendar">
+</form>

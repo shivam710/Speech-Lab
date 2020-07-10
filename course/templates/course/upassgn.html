@@ -1,0 +1,78 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  <li>
+    <a class="s-sidebar__nav-link" href="{% url 'course:show_attendance' CourseInfo %}">
+    Attendance and Grading
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course_material' CourseInfo %}">Study Material</a>
+  </li>
+
+  <li>
+    <a href="{% url 'course:view_course' CourseInfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_TA' CourseInfo %}">Teaching Assistants (TAs)</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' CourseInfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' CourseInfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' CourseInfo 1 %}">Discussion Room</a>
+  </li>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+  {% csrf_token %}
+
+  <div class="form-group">
+    <label for="Name">Name</label>
+    <input type="text" rows="4" class="form-control" name="Name" placeholder="Name Of The Assignment" value="{{AssgnDetails.Name}}" required>
+    
+  </div>
+
+  <div class="form-group">
+    <label for="exampleInputEmail1">About</label>
+    <textarea rows="4" class="form-control" name="About" aria-describedby="about" placeholder="Tell Us Something About Assignment"
+    value="" required>{{AssgnDetails.About}}</textarea>
+  </div>
+
+  <div class="form-group">
+    <label for="Deadline">Deadline</label>
+    <input type="text" data-type="date" id="date-input" name="Deadline" id="trying" value="{{ AssgnDetails.Deadline }}" required/>
+    <div id="material-header-holder" style="display:none">
+      <div class="ui-datepicker-material-header">
+        <div class="ui-datepicker-material-day">
+        </div>
+        <div class="ui-datepicker-material-date">
+          <div class="ui-datepicker-material-month">
+          </div>
+          <div class="ui-datepicker-material-day-num">
+          </div>
+          <div class="ui-datepicker-material-year">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}
+
+{% block scripts %}
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.0/jquery-ui.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.15.2/moment.js"></script>
+{% endblock %}
+
+{% block css %}
+    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto"/>
+    
+{% endblock css %}

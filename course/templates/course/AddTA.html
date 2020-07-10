@@ -1,0 +1,124 @@
+{% extends "base_generic.html" %}
+
+{% block sidebar %}
+  <li>
+    <a class="s-sidebar__nav-link" href="{% url 'course:show_attendance' CourseInfo %}">
+    Attendance and Grading
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course_material' CourseInfo %}">Study Material</a>
+  </li>
+
+  <li>
+    <a href="{% url 'course:view_course' CourseInfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_TA' CourseInfo %}">Teaching Assistants (TAs)</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' CourseInfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' CourseInfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' CourseInfo 1 %}">Discussion Room</a>
+  </li>
+{% endblock %}
+
+{% block content %}
+<form method="POST">
+  {% csrf_token %}
+
+    <div class="form-group">
+      <label for="TA_BRANCH">TA Branch</label>
+      <select class="form-control" onchange="AddTaFormfun()" name="TA_BRANCH" id="TA_BRANCH">
+        <option onselect="">BTech</option>
+        <option onselect="">MTech</option>
+        <option selected onselect="">PhD</option>
+      </select>
+    </div>
+
+
+    <div class="form-group" style="display:none;" id = "BTechTA">
+      <label for="BTechTA">TA ID</label>
+      <select class="form-control" name="BTechTA" id="">
+    {% for stud in BTech %}
+        <option>{{ stud.FullName}}-{{ stud.Username }}</option>
+    {% endfor %}
+      </select>
+    </div>
+
+
+    <div class="form-group" style="display:none;" id = "MTechTA">
+      <label for="MTechTA">TA ID</label>
+      <select class="form-control" name="MTechTA" id="">
+    {% for stud in MTech %}
+        <option>{{ stud.FullName}}-{{ stud.Username }}</option>
+    {% endfor %}
+      </select>
+    </div>
+
+    <div class="form-group" style="display:block;" id = "PhDTA">
+      <label for="PhDTA">TA ID</label>
+      <select class="form-control" name="PhDTA" id="">
+    {% for stud in Phd %}
+        <option>{{ stud.FullName}}-{{ stud.Username }}</option>        
+    {% endfor %}
+      </select>
+    </div>
+
+    {% comment %} <h3> TA Permissions </h3>
+
+    <div class="form-check">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="ManAssgn" id="ManAssgn" value="" unchecked>
+        Manage Assignments
+      </label>
+    </div>
+
+    <div class="form-check">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="ManAttn" id="ManAttn" value="" unchecked>
+        Manage Attendance
+      </label>
+    </div>
+
+    <div class="form-check">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="ManNotice" id="ManNotice" value="" unchecked>
+        Manage NoticeBoard
+      </label>
+    </div>
+
+    <div class="form-check">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="ManCM" id="ManCM" value="" unchecked>
+        Manage Course Materials
+      </label>
+    </div>
+
+    <div class="form-check">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="ManGrad" id="ManGrad" value="" unchecked>
+        Manage Grading
+      </label>
+    </div>
+
+    <div class="form-check">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="ManPlan" id="ManPlan" value="" unchecked>
+        Manage Planner
+      </label>
+    </div>
+
+    <div class="form-check">
+      <label class="form-check-label">
+        <input type="checkbox" class="form-check-input" name="ManSubDeadline" id="ManSubDeadline" value="" unchecked>
+        Manage Submission Deadline
+      </label>
+    </div> {% endcomment %}
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}

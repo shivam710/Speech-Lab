@@ -1,0 +1,53 @@
+{% extends "base_generic.html"%}
+
+{% block sidebar %}
+  <li>
+    <a class="s-sidebar__nav-link" href="{% url 'course:show_attendance' CourseInfo %}">
+    Attendance and Grading
+    </a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_course_material' CourseInfo %}">Study Material</a>
+  </li>
+
+  <li>
+    <a href="{% url 'course:view_course' CourseInfo %}">Assignments</a>
+  </li>
+  <li>
+    <a href="{% url 'course:view_TA' CourseInfo %}">Teaching Assistants (TAs)</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:events' CourseInfo %}">Events</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:notice_board' CourseInfo %}">Noticeboard</a>
+  </li>
+  <li>
+    <a href="{% url 'discussion:course_group' CourseInfo 1 %}">Discussion Room</a>
+  </li>
+{% endblock %}
+
+
+{% block content %}
+
+{% if list %}
+<ul class="cards">
+{% for cTA in list %}
+<li class ="cards__item">
+  <div class="card">
+    <div class ="card__image" style="background-image:url({{cTA.Image}})"></div>
+    <div class="card__content">
+      <div class="card__title">{{ cTA.StudentName }}</div>
+      <div class="card__subtitle">Attendance:{{ cTA.Attendance }}</div>
+      <div class="card__subtitle">Total Marks: {{ cTA.grade }}</div>
+    </div>
+  </div>
+</li>
+{% endfor %}
+</ul>
+{% else %}
+<div class="jumbotron">
+  <p>No Studeents In This Course Yet</p>
+</div>
+{% endif %}
+{% endblock %}
